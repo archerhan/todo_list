@@ -32,37 +32,37 @@ class HomePage extends StatelessWidget {
         print('index=====$index');
       },
       children: <Widget>[
-        Container(
-          color: Colors.indigo,
-          child: Center(
-            child: GestureDetector(
-              onTap: () async {
-                TodoDbProvider provider = TodoDbProvider();
-                provider.getTodos(null).then((value) {
-                  print(value);
-                });
-                // Todo todo = Todo();
-                // todo.id = DateTime.now().millisecondsSinceEpoch;
-                // todo.addTime = "2020-01-20 09:45:56";
-                // todo.lastTime = "2020-01-20 09:45:56";
-                // todo.content = "第一条记录";
-                // todo.status = 0;
-                // provider.insert(todo);
-              },
-              child: Text("点我点我点我"),
-            ),
-          ),
-        ),
+        // Container(
+        //   color: Colors.indigo,
+        //   child: Center(
+        //     child: GestureDetector(
+        //       onTap: () async {
+        //         TodoDbProvider provider = TodoDbProvider();
+        //         provider.getTodos(null).then((value) {
+        //           print(value);
+        //         });
+        //         // Todo todo = Todo();
+        //         // todo.id = DateTime.now().millisecondsSinceEpoch;
+        //         // todo.addTime = "2020-01-20 09:45:56";
+        //         // todo.lastTime = "2020-01-20 09:45:56";
+        //         // todo.content = "第一条记录";
+        //         // todo.status = 0;
+        //         // provider.insert(todo);
+        //       },
+        //       child: Text("点我点我点我"),
+        //     ),
+        //   ),
+        // ),
         TodoListPage(),
-        Container(
-          color: Colors.purple,
-          child: Center(
-            child: Text(
-              '第3页oo',
-              style: TextStyle(color: Colors.black, fontSize: 20.0),
-            ),
-          ),
-        )
+        // Container(
+        //   color: Colors.purple,
+        //   child: Center(
+        //     child: Text(
+        //       '第3页oo',
+        //       style: TextStyle(color: Colors.black, fontSize: 20.0),
+        //     ),
+        //   ),
+        // )
       ],
     );
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:todo/db/todo_db_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:todo/constant/app_strings.dart';
 import 'package:todo/models/todo_model.dart';
+import 'package:todo/providers/todo_provider.dart';
 
 ///
 /// Description:
@@ -18,8 +20,7 @@ class TodoListPage extends StatefulWidget {
 }
 
 class _TodoListPageState extends State<TodoListPage> {
-  List<Todo> _todoList = [];
-  List<Todo> _doneList = [];
+  TodoProvider _todoProvider = TodoProvider();
   FocusNode? _focusNode = FocusNode();
   ScrollController? _scrollController = ScrollController();
   TextEditingController _textEditingController = TextEditingController();
@@ -33,48 +34,11 @@ class _TodoListPageState extends State<TodoListPage> {
       }
     });
 
-    Future.delayed(Duration.zero, () {
-      _loadTodoList();
-    });
+    _loadData();
   }
 
-  _loadTodoList() {
-    TodoDbProvider provider = TodoDbProvider();
-    provider.getTodos(null).then((value) {
-      _todoList.clear();
-      _doneList.clear();
-      for (Todo item in value.reversed) {
-        if (item.status == 0) {
-          _todoList.add(item);
-        } else {
-          _doneList.add(item);
-        }
-      }
-      setState(() {
-        _textEditingController.text = "";
-      });
-    });
-  }
-
-  void _insertTodo(Todo todo) {
-    TodoDbProvider provider = TodoDbProvider();
-    provider.insert(todo).then((value) {
-      _loadTodoList();
-    });
-  }
-
-  void _updateTodoStatus(Todo todo) {
-    TodoDbProvider provider = TodoDbProvider();
-    provider.update(todo).then((value) {
-      _loadTodoList();
-    });
-  }
-
-  void _deleTodo(Todo todo) {
-    TodoDbProvider provider = TodoDbProvider();
-    provider.deleteTodo(todo.id!).then((value) {
-      _loadTodoList();
-    });
+  void _loadData() async {
+    await _todoProvider.fetchData();
   }
 
   @override
@@ -85,65 +49,77 @@ class _TodoListPageState extends State<TodoListPage> {
           FocusScope.of(context).requestFocus(FocusNode());
         },
         child: Scaffold(
-            body: Stack(
-          children: <Widget>[
-            Positioned(
-              left: 20,
-              right: 20,
-              top: 0,
-              bottom: 60,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text("待完成"),
-                    MediaQuery.removePadding(
-                      context: context,
-                      removeBottom: true,
-                      removeTop: true,
-                      child: ListView.separated(
-                        separatorBuilder: (context, index) {
-                          return SizedBox(height: 5);
-                        },
-                        controller: _scrollController,
-                        itemCount: _todoList.length,
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          return _renderItem(_todoList[index]);
-                        },
-                      ),
-                    ),
-                    Text("已完成"),
-                    MediaQuery.removePadding(
-                      context: context,
-                      removeBottom: true,
-                      removeTop: true,
-                      child: ListView.separated(
-                        separatorBuilder: (context, index) {
-                          return SizedBox(height: 5);
-                        },
-                        controller: _scrollController,
-                        itemCount: _doneList.length,
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          return _renderItem(_doneList[index], isDone: true);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              left: 20,
-              right: 20,
-              bottom: 0,
-              height: 60,
-              child: _renderInputHeader(),
-            )
-          ],
+            body: ChangeNotifierProvider<TodoProvider>(
+          create: (ctx) => _todoProvider,
+          child: Consumer<TodoProvider>(
+            builder: (_, todoProvider, __) {
+              return _content();
+            },
+          ),
         )),
       ),
+    );
+  }
+
+  Widget _content() {
+    return Stack(
+      children: <Widget>[
+        Positioned(
+          left: 20,
+          right: 20,
+          top: 0,
+          bottom: 60,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(AppStrings.thingsTodo),
+                MediaQuery.removePadding(
+                  context: context,
+                  removeBottom: true,
+                  removeTop: true,
+                  child: ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 5);
+                    },
+                    controller: _scrollController,
+                    itemCount: _todoProvider.todoList.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return _renderItem(_todoProvider.todoList[index]);
+                    },
+                  ),
+                ),
+                Text(AppStrings.thingsDone),
+                MediaQuery.removePadding(
+                  context: context,
+                  removeBottom: true,
+                  removeTop: true,
+                  child: ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 5);
+                    },
+                    controller: _scrollController,
+                    itemCount: _todoProvider.doneList.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return _renderItem(_todoProvider.doneList[index],
+                          isDone: true);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          left: 20,
+          right: 20,
+          bottom: 0,
+          height: 60,
+          child: _renderInputHeader(),
+        )
+      ],
     );
   }
 
@@ -155,7 +131,7 @@ class _TodoListPageState extends State<TodoListPage> {
       child: TextField(
         controller: _textEditingController,
         focusNode: _focusNode,
-        onSubmitted: (text) {
+        onSubmitted: (text) async {
           if (text.length > 0) {
             Todo todo = Todo();
             todo.id = DateTime.now().millisecondsSinceEpoch;
@@ -163,7 +139,7 @@ class _TodoListPageState extends State<TodoListPage> {
             todo.lastTime = DateTime.now().toString().split(".").first;
             todo.content = text;
             todo.status = 0;
-            _insertTodo(todo);
+            await _todoProvider.insertTodo(todo);
           }
         },
         decoration: InputDecoration(
@@ -174,7 +150,7 @@ class _TodoListPageState extends State<TodoListPage> {
             ),
             fillColor: Theme.of(context).backgroundColor,
             filled: true,
-            hintText: "添加...",
+            hintText: AppStrings.addTodo,
             hintStyle: TextStyle(color: Color(0xffd1d1d1), fontSize: 14),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -199,27 +175,27 @@ class _TodoListPageState extends State<TodoListPage> {
           },
           // dismissThresholds: {SlideActionType.secondary : 220.0},
           child: SlidableDrawerDismissal(),
-          onDismissed: (actionType) {
+          onDismissed: (actionType) async {
             if (actionType == SlideActionType.secondary) {
-              _deleTodo(todo);
+              await _todoProvider.deleteTodo(todo);
             }
           },
         ),
         actions: <Widget>[
           IconSlideAction(
-            caption: 'Done',
+            caption: AppStrings.acomplish,
             color: Colors.green,
             icon: Icons.done_outline,
-            onTap: () {
+            onTap: () async {
               todo.status = todo.status == 0 ? 1 : 0;
               todo.lastTime = DateTime.now().toString().split(".").first;
-              _updateTodoStatus(todo);
+              _todoProvider.updateTodo(todo);
             },
           ),
         ],
         secondaryActions: <Widget>[
           IconSlideAction(
-            caption: 'Delete',
+            caption: AppStrings.deleteTodo,
             color: Colors.red,
             icon: Icons.delete,
             //onTap: () => removeLocation(location),
@@ -234,10 +210,10 @@ class _TodoListPageState extends State<TodoListPage> {
             children: <Widget>[
               Checkbox(
                 value: val,
-                onChanged: (newValue) {
+                onChanged: (newValue) async {
                   val = !val;
                   todo.status = val ? 1 : 0;
-                  _updateTodoStatus(todo);
+                  await _todoProvider.updateTodo(todo);
                 },
               ),
               Text(

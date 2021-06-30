@@ -39,18 +39,21 @@ class TodoProvider extends BaseProvider {
   /// 插入todo
   Future insertTodo(Todo todo) async {
     await _todoDbProvider.insert(todo);
+    await fetchData();
     notifyListeners();
   }
 
   /// 更新todo
   Future updateTodo(Todo todo) async {
     await _todoDbProvider.update(todo);
+    await fetchData();
     notifyListeners();
   }
 
   /// 删除todo
   Future deleteTodo(Todo todo) async {
     await _todoDbProvider.deleteTodo(todo.id!);
+    await fetchData();
     notifyListeners();
   }
 }

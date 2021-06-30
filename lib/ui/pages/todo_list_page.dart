@@ -36,30 +36,23 @@ class _TodoListPageState extends State<TodoListPage> {
     Future.delayed(Duration.zero, () {
       _loadTodoList();
     });
-    // KeyboardVisibilityNotification().addNewListener(
-    //   onChange: (bool visible) {
-    //     print(visible);
-    //   },
-    // );
   }
 
   _loadTodoList() {
     TodoDbProvider provider = TodoDbProvider();
     provider.getTodos(null).then((value) {
-      if (value != null) {
-        _todoList.clear();
-        _doneList.clear();
-        for (Todo item in value.reversed) {
-          if (item.status == 0) {
-            _todoList.add(item);
-          } else {
-            _doneList.add(item);
-          }
+      _todoList.clear();
+      _doneList.clear();
+      for (Todo item in value.reversed) {
+        if (item.status == 0) {
+          _todoList.add(item);
+        } else {
+          _doneList.add(item);
         }
-        setState(() {
-          _textEditingController.text = "";
-        });
       }
+      setState(() {
+        _textEditingController.text = "";
+      });
     });
   }
 

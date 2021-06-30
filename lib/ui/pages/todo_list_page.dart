@@ -189,13 +189,18 @@ class _TodoListPageState extends State<TodoListPage> {
         dismissal: SlidableDismissal(
           onWillDismiss: (actionType) {
             if (actionType == SlideActionType.primary) {
-              return false;
+              return true;
             } else {
               return true;
             }
           },
           child: SlidableDrawerDismissal(),
           onDismissed: (actionType) async {
+            if (actionType == SlideActionType.primary) {
+              todo.status = todo.status == 0 ? 1 : 0;
+              todo.lastTime = DateTime.now().toString().split(".").first;
+              await _todoProvider.updateTodo(todo);
+            }
             if (actionType == SlideActionType.secondary) {
               await _todoProvider.deleteTodo(todo);
             }
@@ -209,7 +214,7 @@ class _TodoListPageState extends State<TodoListPage> {
             onTap: () async {
               todo.status = todo.status == 0 ? 1 : 0;
               todo.lastTime = DateTime.now().toString().split(".").first;
-              _todoProvider.updateTodo(todo);
+              await _todoProvider.updateTodo(todo);
             },
           ),
         ],

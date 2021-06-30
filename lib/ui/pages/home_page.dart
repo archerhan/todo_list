@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:todo/db/todo_db_provider.dart';
 import 'package:todo/ui/pages/todo_list_page.dart';
 
 ///
@@ -19,18 +18,6 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _renderHorizentalPageView() {
-    PageController _hPageController =
-        PageController(initialPage: 1, viewportFraction: 1, keepPage: true);
     return TodoListPage();
-    return PageView(
-      scrollDirection: Axis.horizontal,
-      reverse: false,
-      controller: _hPageController,
-      physics: BouncingScrollPhysics(),
-      pageSnapping: true,
-      children: <Widget>[
-        TodoListPage(),
-      ],
-    );
   }
 }

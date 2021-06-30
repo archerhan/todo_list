@@ -41,6 +41,10 @@ class _TodoListPageState extends State<TodoListPage> {
     await _todoProvider.fetchData();
   }
 
+  void _cleanInput() {
+    _textEditingController.text = "";
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -139,6 +143,7 @@ class _TodoListPageState extends State<TodoListPage> {
             todo.lastTime = DateTime.now().toString().split(".").first;
             todo.content = text;
             todo.status = 0;
+            _cleanInput();
             await _todoProvider.insertTodo(todo);
           }
         },

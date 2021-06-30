@@ -1,10 +1,10 @@
-/// 
-/// Description: 
+///
+/// Description:
 /// Author: ArcherHan
 /// Date: 2021-06-30 13:36:47
 /// LastEditors: ArcherHan
-/// LastEditTime: 2021-06-30 13:36:47
-/// 
+/// LastEditTime: 2021-06-30 14:29:09
+///
 import 'dart:async';
 import 'dart:convert';
 
@@ -28,7 +28,6 @@ class SpUtil {
       await _lock.synchronized(() async {
         if (_singleton == null) {
           // keep local instance till it is fully initialized.
-          // 保持本地实例直到完全初始化。
           var singleton = SpUtil._();
           await singleton._init();
           _singleton = singleton;

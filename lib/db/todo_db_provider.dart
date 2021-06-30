@@ -13,7 +13,7 @@ class TodoDbProvider extends BaseDbProvider {
   ///表名
   final String name = 'TodoList';
 
-  final String columnId = "id"; //主键为add_time
+  final String columnId = "id";
   final String columnLastTime = "last_time";
   final String columnAddTime = "add_time";
   final String columnStatus = "status";
@@ -37,7 +37,7 @@ class TodoDbProvider extends BaseDbProvider {
   }
 
   ///查询数据库
-  Future _getTodoProvider(Database db, int id) async {
+  Future _getTodoProvider(Database db, int? id) async {
     List<Map<String, dynamic>> maps = [];
     if (id != null) {
       maps = await db.rawQuery("select * from $name where $columnId = $id");
@@ -79,7 +79,7 @@ class TodoDbProvider extends BaseDbProvider {
   }
 
   ///获取事件数据（全部）
-  Future<List<Todo>> getTodos(int id) async {
+  Future<List<Todo>> getTodos(int? id) async {
     Database db = await getDataBase();
     List<Map<String, dynamic>> maps = await _getTodoProvider(db, id);
     if (maps.length > 0) {

@@ -73,48 +73,7 @@ class _TodoListPageState extends State<TodoListPage> {
           right: 20,
           top: 0,
           bottom: 60,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(AppStrings.thingsTodo),
-                MediaQuery.removePadding(
-                  context: context,
-                  removeBottom: true,
-                  removeTop: true,
-                  child: ListView.separated(
-                    separatorBuilder: (context, index) {
-                      return SizedBox(height: 5);
-                    },
-                    controller: _scrollController,
-                    itemCount: _todoProvider.todoList.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return _renderItem(_todoProvider.todoList[index]);
-                    },
-                  ),
-                ),
-                Text(AppStrings.thingsDone),
-                MediaQuery.removePadding(
-                  context: context,
-                  removeBottom: true,
-                  removeTop: true,
-                  child: ListView.separated(
-                    separatorBuilder: (context, index) {
-                      return SizedBox(height: 5);
-                    },
-                    controller: _scrollController,
-                    itemCount: _todoProvider.doneList.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return _renderItem(_todoProvider.doneList[index],
-                          isDone: true);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+          child: _todoListView(),
         ),
         Positioned(
           left: 20,
@@ -127,7 +86,64 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
-  _renderInputHeader() {
+  Widget _todoListView() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(AppStrings.thingsTodo),
+          MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            removeTop: true,
+            child: _todoProvider.todoList.length == 0
+                ? Container(
+                    height: 30,
+                    alignment: Alignment.center,
+                    child: Text(AppStrings.addTodoBelow),
+                  )
+                : ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 5);
+                    },
+                    controller: _scrollController,
+                    itemCount: _todoProvider.todoList.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return _renderItem(_todoProvider.todoList[index]);
+                    },
+                  ),
+          ),
+          Text(AppStrings.thingsDone),
+          MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            removeTop: true,
+            child: _todoProvider.doneList.length == 0
+                ? Container(
+                    height: 30,
+                    alignment: Alignment.center,
+                    child: Text(AppStrings.doneEmpty),
+                  )
+                : ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 5);
+                    },
+                    controller: _scrollController,
+                    itemCount: _todoProvider.doneList.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return _renderItem(_todoProvider.doneList[index],
+                          isDone: true);
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _renderInputHeader() {
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: 40,
@@ -151,12 +167,12 @@ class _TodoListPageState extends State<TodoListPage> {
             contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
             prefixIcon: Icon(
               Icons.add,
-              color: Color(0xffd1d1d1),
+              color: Color(0xffffffff),
             ),
             fillColor: Theme.of(context).backgroundColor,
             filled: true,
             hintText: AppStrings.addTodo,
-            hintStyle: TextStyle(color: Color(0xffd1d1d1), fontSize: 14),
+            hintStyle: TextStyle(color: Color(0xffffffff), fontSize: 14),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20),
                 borderSide: BorderSide.none)),
@@ -164,7 +180,7 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
-  _renderItem(Todo todo, {bool isDone = false}) {
+  Widget _renderItem(Todo todo, {bool isDone = false}) {
     bool val = todo.status == 0 ? false : true;
     return Slidable(
         key: Key("key_${todo.id.toString()}"),
@@ -178,7 +194,6 @@ class _TodoListPageState extends State<TodoListPage> {
               return true;
             }
           },
-          // dismissThresholds: {SlideActionType.secondary : 220.0},
           child: SlidableDrawerDismissal(),
           onDismissed: (actionType) async {
             if (actionType == SlideActionType.secondary) {
@@ -203,7 +218,9 @@ class _TodoListPageState extends State<TodoListPage> {
             caption: AppStrings.deleteTodo,
             color: Colors.red,
             icon: Icons.delete,
-            //onTap: () => removeLocation(location),
+            onTap: () async {
+              await _todoProvider.deleteTodo(todo);
+            },
           ),
         ],
         child: Container(

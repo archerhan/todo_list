@@ -13,4 +13,5 @@ class AppStrings {
   static const String acomplish = "完成";
   static const String addTodoBelow = "暂无待办，请从下方添加待办";
   static const String doneEmpty = "暂无已完成待办";
+  static const String undo = "撤销";
 }

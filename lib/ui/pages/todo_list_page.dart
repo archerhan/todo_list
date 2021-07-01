@@ -208,9 +208,9 @@ class _TodoListPageState extends State<TodoListPage> {
         ),
         actions: <Widget>[
           IconSlideAction(
-            caption: AppStrings.acomplish,
+            caption: todo.status == 1 ? AppStrings.undo : AppStrings.acomplish,
             color: Colors.green,
-            icon: Icons.done_outline,
+            icon: todo.status == 1 ? Icons.undo_outlined : Icons.done_outline,
             onTap: () async {
               todo.status = todo.status == 0 ? 1 : 0;
               todo.lastTime = DateTime.now().toString().split(".").first;

@@ -22,9 +22,9 @@ class TodoProvider extends BaseProvider {
   /// 获取本地存储的全部数据，并分组
   Future fetchData() async {
     var dataList = await _todoDbProvider.getTodos(null);
+    _todoList.clear();
+    _doneList.clear();
     if (dataList.length > 0) {
-      _todoList.clear();
-      _doneList.clear();
       for (Todo item in dataList.reversed) {
         if (item.status == 0) {
           _todoList.add(item);
